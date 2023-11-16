@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MoviesSampleApp</string>
-    <string name="search_hint">Search for movies...</string>
+    <string name="search_hint">Search for movies…</string>
+    <string name="title_activity_movie_details_compose">MovieDetailsActivityCompose</string>
 </resources>

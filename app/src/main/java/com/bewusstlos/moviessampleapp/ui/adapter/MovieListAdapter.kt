@@ -5,15 +5,12 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.Toast
-import androidx.recyclerview.widget.DiffUtil
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bewusstlos.moviessampleapp.R
 import com.bewusstlos.moviessampleapp.data.model.Movie
 import com.bewusstlos.moviessampleapp.ui.view.MovieDetailsActivity
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.movie_list_item.view.*
 
 class MovieListAdapter(private val context: Context, private val posterPathPrefix: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -50,10 +47,10 @@ class MovieListAdapter(private val context: Context, private val posterPathPrefi
         if (holder is MovieViewHolder) {
             holder.itemView.apply {
                 data[position].posterPath?.let { posterPath ->
-                    Glide.with(context).load(posterPathPrefix + posterPath).into(iv_poster)
+                    Glide.with(context).load(posterPathPrefix + posterPath).into(findViewById(R.id.iv_poster))
                 }
-                tv_title.text = data[position].title
-                tv_popularity.text = "Popularity: %.2f".format(data[position].popularity)
+                findViewById<TextView>(R.id.tv_title).text = data[position].title
+                findViewById<TextView>(R.id.tv_popularity).text = "Popularity: %.2f".format(data[position].popularity)
 
                 setOnClickListener {
                     val intent = Intent(context, MovieDetailsActivity::class.java)

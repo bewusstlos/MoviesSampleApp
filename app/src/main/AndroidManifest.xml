@@ -13,8 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MoviesSampleApp">
-        <activity android:name=".ui.view.MovieDetailsActivity"></activity>
-        <activity android:name=".ui.view.ListActivity">
+        <activity
+            android:name=".ui.view.MovieDetailsActivityCompose"
+            android:exported="false"
+            android:label="@string/title_activity_movie_details_compose"
+            android:theme="@style/Theme.MoviesSampleApp" />
+        <activity android:name=".ui.view.MovieDetailsActivity" />
+        <activity
+            android:name=".ui.view.ListActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

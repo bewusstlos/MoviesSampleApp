@@ -7,19 +7,20 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Recycler
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bewusstlos.moviessampleapp.R
 import com.bewusstlos.moviessampleapp.ui.adapter.MovieListAdapter
 import com.bewusstlos.moviessampleapp.ui.viewmodel.ListViewModel
 import com.bewusstlos.moviessampleapp.ui.viewmodel.viewModel
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import org.kodein.di.*
 import org.kodein.di.android.di
@@ -33,16 +34,24 @@ class ListActivity : AppCompatActivity(), DIAware {
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchJob: Job? = null
 
+    private lateinit var rvMovies: RecyclerView
+    private lateinit var etSearch: EditText
+    private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var tvTotalFound: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_list)
         initUI()
         initObservers()
         viewModel.loadMovies(null)
     }
 
     private fun initUI() {
-        rv_movies.layoutManager = object : LinearLayoutManager(this) {
+        rvMovies = findViewById(R.id.rv_movies)
+        etSearch = findViewById(R.id.et_search)
+        swipeRefresh = findViewById(R.id.swipe_refresh)
+        tvTotalFound = findViewById(R.id.tv_total_found)
+        rvMovies.layoutManager = object : LinearLayoutManager(this) {
             //hotfix
             override fun onLayoutChildren(recycler: Recycler?, state: RecyclerView.State?) {
                 try {
@@ -54,28 +63,28 @@ class ListActivity : AppCompatActivity(), DIAware {
         }
 
         moviesAdapter = MovieListAdapter(this, posterPathPrefix)
-        rv_movies.adapter = moviesAdapter
-        rv_movies.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        rvMovies.adapter = moviesAdapter
+        rvMovies.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItemCount = (recyclerView.layoutManager as LinearLayoutManager).itemCount;
                 val lastVisibleItem =
                     (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
                 if (!moviesAdapter.isLoading && (totalItemCount <= (lastVisibleItem + MovieListAdapter.VISIBLE_THRESHOLD)) && !moviesAdapter.isEmpty()) {
-                    viewModel.loadMovies(et_search.text.toString())
+                    viewModel.loadMovies(etSearch.text.toString())
                 }
             }
         })
 
-        swipe_refresh.setOnRefreshListener {
+        swipeRefresh.setOnRefreshListener {
             hideKeyboard()
             clearData()
-            et_search.setText("")
-            viewModel.loadMovies(if (et_search.text.isNullOrEmpty()) null else et_search.text.toString())
+            etSearch.setText("")
+            viewModel.loadMovies(if (etSearch.text.isNullOrEmpty()) null else etSearch.text.toString())
         }
 
 
-        et_search.doOnTextChanged { text, start, count, after ->
+        etSearch.doOnTextChanged { text, _, _, _ ->
             searchHandler.postDelayed({
                 searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
@@ -85,12 +94,12 @@ class ListActivity : AppCompatActivity(), DIAware {
             }, 300)
         }
 
-        rv_movies.requestFocus()
+        rvMovies.requestFocus()
     }
 
     private fun initObservers() {
         viewModel.moviesLiveData.observe(this) {
-            swipe_refresh.isRefreshing = false
+            swipeRefresh.isRefreshing = false
             moviesAdapter.addItems(it)
         }
 
@@ -103,8 +112,8 @@ class ListActivity : AppCompatActivity(), DIAware {
         }
 
         viewModel.searchResultsCount.observe(this) {
-            tv_total_found.visibility = if (it != -1) View.VISIBLE else View.GONE
-            tv_total_found.text = "Total movies found: ${it}"
+            tvTotalFound.visibility = if (it != -1) View.VISIBLE else View.GONE
+            tvTotalFound.text = "Total movies found: $it"
         }
     }
 
