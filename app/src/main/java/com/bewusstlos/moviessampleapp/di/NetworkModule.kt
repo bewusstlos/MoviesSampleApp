@@ -16,7 +16,7 @@ val networkModule = DI.Module("network") {
     bind<OkHttpClient>("httpClient") with singleton {
         val apiKeyInterceptor = Interceptor {chain->
             val url = chain.request()
-                .url()
+                .url
                 .newBuilder()
                 .addQueryParameter("api_key", API_KEY)
                 .build()

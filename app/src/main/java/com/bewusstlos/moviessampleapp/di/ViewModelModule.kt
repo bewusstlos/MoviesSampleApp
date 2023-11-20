@@ -9,5 +9,5 @@ import org.kodein.di.*
 val viewModelModule = DI.Module("viewModel") {
     bind<ViewModelFactory>() with provider { ViewModelFactory(instance()) }
     bindViewModel<ListViewModel>() with provider { ListViewModel(instance()) }
-    bindViewModel<MovieDetailsViewModel>() with provider { MovieDetailsViewModel(instance())}
+    bindViewModel<MovieDetailsViewModel>() with provider { MovieDetailsViewModel(instance()) }
 }
